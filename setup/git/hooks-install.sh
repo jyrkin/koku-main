@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # install KoKu custom Git client-side hooks for each repository
@@ -8,7 +8,7 @@
 # sh koku-main/setup/git/hooks-install.sh
 #
 
-repos=`find . -name 'koku-*' -type d -maxdepth 1`
+repos=`find . -maxdepth 1 -name 'koku-*' -type d`
 hooks="commit-msg msg-check.pl"
 
 for i in $repos; do
