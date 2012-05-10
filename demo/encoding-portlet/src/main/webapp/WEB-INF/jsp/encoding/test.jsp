@@ -6,7 +6,7 @@
  This file is licensed under GNU LGPL version 3.
  Please see the 'license.txt' file in the root directory of the package you received.
  If you did not receive a license, please contact the copyright holder
- (http://www.ixonos.com/).
+ (kohtikumppanuutta@ixonos.com).
 --%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
