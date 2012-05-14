@@ -10,7 +10,7 @@ vcs_dir_type=tag
 svn_repo_base=https://ext-svn.ixonos
 
 function usage() {
-  echo "usage: koku-build.sh -r release_version -c {mark_release | build_packages} [-e]"
+  echo "usage: koku-build.sh -r release_version -c {mark_release | build_packages} -t {portal_epp | epp_epp} [-e]"
   exit 1
 }
 
@@ -51,6 +51,20 @@ function mark_release() {
            $svn_repo_base/kohtikumppanuutta/$m/$vcs_dir/$koku_rel_v \
         -m "KoKu / $m: $koku_rel_v $vcs_type."
   done
+}
+
+function prepare_loora_packages() {
+	case $deploy_target in
+	  portal_epp)
+		echo "WARNING: Removing EPP spesific notations"
+		rm lok/src/main/webapp/WEB-INF/jboss-web.xml
+		rm kks/src/main/webapp/WEB-INF/jboss-web.xml
+		sed -i'' 's/\/portlet" prefix=/\/portlet_2_0" prefix=/' {kks,lok}/src/main/webapp/WEB-INF/jsp/*/imports.jsp
+		sed -i'' '/EPP only: start/,/EPP only: end/d' */src/main/webapp/WEB-INF/web.xml arcusys-portlet/*/src/main/webapp/WEB-INF/web.xml
+		;;
+	  *) echo "No Loora preparation needed"
+	  ;;
+	esac
 }
 
 function build_packages() {
@@ -118,8 +132,8 @@ function build_packages() {
     arcusys-portlet/koku-navi-portlet/target/koku-navi-portlet.war $KUNPO_DIR
 
   # build/ui: loora packages
-  sed -i'' 's/\/portlet" prefix=/\/portlet_2_0" prefix=/' {kks,lok}/src/main/webapp/WEB-INF/jsp/*/imports.jsp
-  sed -i'' '/EPP only: start/,/EPP only: end/d' */src/main/webapp/WEB-INF/web.xml arcusys-portlet/*/src/main/webapp/WEB-INF/web.xml
+  
+  prepare_loora_packages
   mvn -Dkoku.build.version=$koku_rel_v -Dkoku.build.vcs-version=$rev_koku_ui clean install
   cp kks/target/kks-portlet-*.war lok/target/lok-portlet-*.war $LOORA_DIR
   cp arcusys-portlet/koku-palvelut-portlet/target/palvelut-portlet.war arcusys-portlet/koku-message-portlet/target/koku-message-portlet.war \
@@ -128,7 +142,7 @@ function build_packages() {
   popd
 }
 
-while getopts "r:c:e" o; do
+while getopts "r:c:e:t" o; do
   case $o in
     r) koku_rel_v=$OPTARG
 	  ;;
@@ -136,6 +150,8 @@ while getopts "r:c:e" o; do
 	  ;;
     e) is_ext_user=1
 	  ;;
+	t) deploy_target=$OPTARG
+	  ;;  
     *) echo "?"
 	  exit 1
 	  ;;
