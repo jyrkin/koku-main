@@ -142,7 +142,7 @@ function build_packages() {
   popd
 }
 
-while getopts "r:c:e:t" o; do
+while getopts "r:c:t:e" o; do
   case $o in
     r) koku_rel_v=$OPTARG
 	  ;;
