@@ -158,7 +158,7 @@ while getopts "r:c:t:e" o; do
   esac
 done
 
-if [ "x" = "x$koku_rel_v" -o "x" = "x$build_command" ]; then
+if [ "x" = "x$koku_rel_v" -o "x" = "x$build_command" -o "x" = "x$deploy_target" ]; then
   usage
 fi
 
