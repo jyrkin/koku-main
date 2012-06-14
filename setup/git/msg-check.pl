@@ -3,8 +3,8 @@
 use strict;
 use warnings;
 
-#'<:encoding(utf8)'
-open FILE, "$ARGV[0]" or die $!;
+#open FILE, "<:encoding(utf8)", "$ARGV[0]" or die $!;
+open FILE, "<$ARGV[0]" or die $!;
 undef $/;
 my $msg=<FILE>;
 close(FILE);
