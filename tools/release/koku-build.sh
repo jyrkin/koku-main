@@ -10,7 +10,7 @@ vcs_dir_type=tag
 svn_repo_base=https://ext-svn.ixonos
 
 function usage() {
-  echo "usage: koku-build.sh -r release_version -c {mark_release | build_packages} -t {portal_epp | epp_epp} [-e]"
+  echo "usage: koku-build.sh -r release_version -c build_packages -t {portal_epp | epp_epp}"
   exit 1
 }
 
@@ -40,17 +40,6 @@ function get_vcs_dir_by_type() {
 	exit 1
 	;;
   esac
-}
-
-function mark_release() {
-  local mods="$1"
-  local vcs_type="$2"
-  local vcs_dir="$3"
-  for m in $mods; do
-    svn copy $svn_repo_base/kohtikumppanuutta/$m/trunk \
-           $svn_repo_base/kohtikumppanuutta/$m/$vcs_dir/$koku_rel_v \
-        -m "KoKu / $m: $koku_rel_v $vcs_type."
-  done
 }
 
 function prepare_loora_packages() {
@@ -142,15 +131,16 @@ function build_packages() {
   popd
 }
 
-while getopts "r:c:t:e" o; do
+while getopts "r:c:t:" o; do
   case $o in
     r) koku_rel_v=$OPTARG
+	echo "koku_rel_v: $koku_rel_v"
 	  ;;
     c) build_command=$OPTARG
+	echo "build_command: $build_command"
 	  ;;
-    e) is_ext_user=1
-	  ;;
-	t) deploy_target=$OPTARG
+    t) deploy_target=$OPTARG
+	echo "deploy_target: $deploy_target"
 	  ;;  
     *) echo "?"
 	  exit 1
@@ -158,28 +148,17 @@ while getopts "r:c:t:e" o; do
   esac
 done
 
+
 if [ "x" = "x$koku_rel_v" -o "x" = "x$build_command" -o "x" = "x$deploy_target" ]; then
   usage
 fi
 
 # set runtime variables
-if [ "x" = "x$is_ext_user" ]; then
-  svn_repo_base=$svn_repo_base.local
-else
-  svn_repo_base=$svn_repo_base.com
-fi
-
+svn_repo_base=$svn_repo_base.com
 get_vcs_dir_by_type $vcs_dir_type
 vcs_dir=$res
 
 case $build_command in
-  mark_release)
-  	echo "ERROR: mark_release not yet updated for Git"
-  	exit 1
-	fail_if_vcs_dir_exists "$modules" $vcs_dir_type $vcs_dir
-	echo "$vcs_dir_type $koku_rel_v doesn't exist. creating ${vcs_dir_type}"
-	mark_release "$modules" $vcs_dir_type $vcs_dir
-	;;
   build_packages)
 	build_packages $vcs_dir
 	;;
